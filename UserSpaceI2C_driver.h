@@ -26,8 +26,10 @@ typedef struct
 class UserSpaceI2Cdriver
 {
     private:
-        int     fp;
         bool    initialized;
+        bool    verbose;
+        int     fp;
+        uint8_t i2c_addr;
         std::vector<PORT> ports;
 
         int WriteRegisters(std::vector<WRITE>);
@@ -37,6 +39,7 @@ class UserSpaceI2Cdriver
         UserSpaceI2Cdriver(char *, uint8_t addr);
         ~UserSpaceI2Cdriver();
         int GetIntialized(void) { return initialized; }
+        void SetVerbose(void) {verbose = true;}
 
         //
         // Data functions
@@ -54,6 +57,9 @@ class UserSpaceI2Cdriver
 
         // S Addr Wr [A] first_byte [A] second_byte [A] P
         int WriteByteData(uint8_t first_byte, uint8_t second_byte);
+
+        // S Addr Wr [A] Comm [A] DataLow [A] DataHigh [A] P
+        int WriteWordData(uint8_t first_byte, uint8_t second_byte, uint8_t third_byte);
 
         //
         // MUX control functions
