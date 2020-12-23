@@ -178,12 +178,14 @@ int UserSpaceI2Cdriver::SetPort(int port)
             break;
         }
     }
+    return 0;
 }
 
 int UserSpaceI2Cdriver::AddPort(int port, uint8_t addr)
 {
     PORT p = { .id=port, .addr=addr };
     ports.push_back(p);
+    return 0;
 }
 
 

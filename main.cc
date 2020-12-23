@@ -3,11 +3,9 @@
 #include <unistd.h>
 
 //#include "ICM20948_driver.h"
-//#include "VL6180X_driver.h"
+#include "VL6180X_driver.h"
 #include "UserSpaceI2C_driver.h"
 
-
-#define WriteByte(addr, data)   i2c.WriteWordData(addr>>8, addr&0x00FF, data)
 
 
 int main(int argc, char **argv)
@@ -25,10 +23,20 @@ int main(int argc, char **argv)
     // |m|m addr(0x29) |m|s| slave     |m|m|
     // |S|0|1|0|1|0|0|1|R|A| data(7:0) |A|P|
     data = i2c.ReadByte();
-    printf("Version: 0x%02x", data);
+    printf("Version: 0x%02x\n", data);
 
     VL6180driver left_obs(&i2c);
-    print("Range: %d", left_obs.GetStatus());
+    printf("Version: 0x%02x\n", left_obs.GetVersion());
+
+    while(1)
+    {
+        int range = left_obs.GetRange();
+        if(range < 0)
+            perror("VL6180 driver returned an error\n");
+        else
+            printf("Range: %d\n", range);
+        sleep(1);
+    }
 #if 0
 while(1)
 {

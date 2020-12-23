@@ -147,7 +147,7 @@ extern "C" {
 Of-course you need to include -li2c in your g++ command line.
 g++ -std=c++11 UserspaceI2C_driver.cc -li2c
 g++ UserspaceI2C_driver.cc -I./ -I../ICM20948_driver -I../VL6180X_driver
-
+g++ -std=c++11 UserSpaceI2C_driver.cc main.cc -li2c
 
 # Testing
 
