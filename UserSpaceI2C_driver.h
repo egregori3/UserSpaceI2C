@@ -30,9 +30,11 @@ class UserSpaceI2Cdriver
         bool    verbose;
         int     fp;
         uint8_t i2c_addr;
+        uint8_t mux_i2c_addr;
         std::vector<PORT> ports;
 
         int WriteRegisters(std::vector<WRITE>);
+        int SetI2CAddress(uint8_t);
 
     public:
         // addr = the address of the MUX
@@ -54,6 +56,9 @@ class UserSpaceI2Cdriver
 
         // S Addr Wr [A] first_byte [A] S Addr Rd [A] [Data] NA P
         uint8_t ReadByteData(uint8_t first_byte);
+
+        // S Addr Wr [A] first_byte [A] P
+        int WriteByte(uint8_t first_byte);
 
         // S Addr Wr [A] first_byte [A] second_byte [A] P
         int WriteByteData(uint8_t first_byte, uint8_t second_byte);

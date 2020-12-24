@@ -138,11 +138,13 @@ sudo apt-get install -y libi2c-dev
 # Building
 
 When building C++ apps, the i2c headers need to be wrapped by extern "C".
+```
 extern "C" {
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
 #include <i2c/smbus.h>
 }
+```
 
 Of-course you need to include -li2c in your g++ command line.
 g++ -std=c++11 UserspaceI2C_driver.cc -li2c
@@ -158,5 +160,13 @@ i2cdetect -l
 i2c-1    unknown   bcm2835 (i2c@7e804000)          N/A
 ```
 
+
+# I2C MUX
+
+https://www.ti.com/lit/ds/symlink/tca9548a.pdf
+https://cdn.sparkfun.com/assets/7/2/f/c/6/Qwiic_Mux_Schematic.pdf
+
+|S|1|1|1|0|0|0|0|W|A| port select (bit0 for port 0) |A|P|
+|S| Addr        |Wr[A] Data                         [A] P   i2c_smbus_write_byte
 
 

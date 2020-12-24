@@ -1,5 +1,4 @@
 // Linux Userspace Driver by Eric Gregori
-// g++ -std=c++11 ICM20948_linux_driver.cc -li2c
 // By Eric Gregori
 #define ONHARDWARE  1
 
@@ -63,6 +62,24 @@ uint8_t UserSpaceI2Cdriver::ReadByteData(uint8_t first_byte)
     return (uint8_t)data;
 }
 
+// S Addr Wr [A] first_byte [A] P
+int UserSpaceI2Cdriver::WriteByte(uint8_t first_byte)
+{
+    int ret_val = 0;
+
+#if ONHARDWARE
+    ret_val = i2c_smbus_write_byte(fp,
+                                   first_byte);
+    if (ret_val < 0)
+    {
+        perror("I2C Write Operation failed.");
+    }
+#endif
+    if(verbose)
+        printf("WriteByte: S 0x%02X Wr [A] 0x%02X [A] P\n", i2c_addr, first_byte);
+    return ret_val;
+}
+
 // S Addr Wr [A] first_byte [A] second_byte [A] P
 int UserSpaceI2Cdriver::WriteByteData(uint8_t first_byte, uint8_t second_byte)
 {
@@ -102,12 +119,27 @@ int UserSpaceI2Cdriver::WriteWordData(uint8_t first_byte, uint8_t second_byte, u
     return ret_val;
 }
 
+int UserSpaceI2Cdriver::SetI2CAddress(uint8_t i2c_add)
+{
+    int ret_val = 0;
+#if ONHARDWARE
+    // Set I2C_SLAVE address */
+    ret_val = ioctl(fp,I2C_SLAVE,i2c_add);
+    if (ret_val < 0)
+    {
+        perror("Could not set I2C_SLAVE.");
+    }
+#endif
+    i2c_addr = i2c_add;
+    return ret_val;
+}
+
 UserSpaceI2Cdriver::UserSpaceI2Cdriver(char *PathFilename, uint8_t i2c_add)
 {
     int ret_val = 0;
 
+    mux_i2c_addr = i2c_add;
     verbose = false;
-    i2c_addr = i2c_add;
     printf("Opening I2C Driver: %s\n", PathFilename);
 #if ONHARDWARE
     fp = open(PathFilename, O_RDWR);
@@ -117,14 +149,14 @@ UserSpaceI2Cdriver::UserSpaceI2Cdriver(char *PathFilename, uint8_t i2c_add)
     }
 
     // Set I2C_SLAVE address */
-    ret_val = ioctl(fp,I2C_SLAVE,i2c_add);
+    ret_val = SetI2CAddress(i2c_add);
     if (ret_val < 0)
     {
         perror("Could not set I2C_SLAVE.");
     }
 #endif
-
-    initialized = true;
+    if(ret_val >= 0)
+        initialized = true;
 }
 
 UserSpaceI2Cdriver::~UserSpaceI2Cdriver()
@@ -169,14 +201,22 @@ int UserSpaceI2Cdriver::WriteRegisters(vector<WRITE> registers)
 //
 int UserSpaceI2Cdriver::SetPort(int port)
 {
+    uint8_t select; // Port 0
+
+    SetI2CAddress(mux_i2c_addr); // Set I2C address to MUX
     for(int i=0; i<ports.size(); ++i)
     {
         if(ports[i].id == port)
         {
             // Set port
-            printf("Set port to %d", ports[i].addr);
+            select = (0x01<<ports[i].id);
+//            printf("Set port to %d, address 0x%02x, select 0x%02x\n", 
+//                    ports[i].id, ports[i].addr, select);
+            WriteByte(select); // Change MUX
+            SetI2CAddress(ports[i].addr); // Set I2C address
             break;
         }
+        select <<= 1; // Select next port
     }
     return 0;
 }
