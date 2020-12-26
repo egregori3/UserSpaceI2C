@@ -202,21 +202,22 @@ int UserSpaceI2Cdriver::WriteRegisters(vector<WRITE> registers)
 int UserSpaceI2Cdriver::SetPort(int port)
 {
     uint8_t select; // Port 0
-
+    uint8_t portid;
+    
     SetI2CAddress(mux_i2c_addr); // Set I2C address to MUX
     for(int i=0; i<ports.size(); ++i)
     {
-        if(ports[i].id == port)
+        portid = ports[i].id;
+        if(portid == port)
         {
             // Set port
-            select = (0x01<<ports[i].id);
+            select = (0x01<<(portid&0x0f);
 //            printf("Set port to %d, address 0x%02x, select 0x%02x\n", 
-//                    ports[i].id, ports[i].addr, select);
+//                    portid, ports[i].addr, select);
             WriteByte(select); // Change MUX
             SetI2CAddress(ports[i].addr); // Set I2C address
             break;
         }
-        select <<= 1; // Select next port
     }
     return 0;
 }
