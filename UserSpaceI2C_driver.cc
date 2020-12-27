@@ -211,7 +211,7 @@ int UserSpaceI2Cdriver::SetPort(int port)
         if(portid == port)
         {
             // Set port
-            select = (0x01<<(portid&0x0f);
+            select = (0x01<<(portid&0x0f));
 //            printf("Set port to %d, address 0x%02x, select 0x%02x\n", 
 //                    portid, ports[i].addr, select);
             WriteByte(select); // Change MUX
